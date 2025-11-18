@@ -1,0 +1,47 @@
+{
+  "project_name": "Architecture-Bulletin",
+  "project_type": "static_web_app",
+  "description": "Team deliverables bulletin board with GitHub as backend storage",
+  "frontend": {
+    "framework": "Vite + React",
+    "language": "JavaScript",
+    "ui_library": "Tailwind CSS",
+    "state_management": "Context API + Hooks",
+    "version": {
+      "node": ">=18.0.0",
+      "npm": ">=9.0.0"
+    }
+  },
+  "backend": {
+    "type": "GitHub API",
+    "storage": "GitHub Repository Filesystem",
+    "description": "Using GitHub API to store and retrieve deliverables, tasks, and conversations"
+  },
+  "authentication": {
+    "method": "GitHub OAuth",
+    "provider": "GitHub",
+    "description": "Users authenticate with their GitHub accounts for access control"
+  },
+  "deployment": {
+    "platform": "GitHub Pages",
+    "ci_cd": "GitHub Actions",
+    "container": false
+  },
+  "additional_tools": {
+    "build_tool": "Vite",
+    "package_manager": "npm",
+    "css_framework": "Tailwind CSS",
+    "routing": "React Router",
+    "http_client": "Octokit (GitHub API)",
+    "linting": ["ESLint"],
+    "formatting": ["Prettier"],
+    "version_control": "Git"
+  },
+  "features": {
+    "admin_panel": "Post messages and tasks with attachments",
+    "architect_view": "Read bulletin, self-assign or be assigned tasks",
+    "task_management": "Track tasks with statuses: New, Assigned-InProgress, Closed",
+    "conversations": "Threaded discussions on task artifacts",
+    "file_attachments": "Upload and manage deliverable artifacts"
+  }
+}
