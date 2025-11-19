@@ -1,0 +1,55 @@
+@startuml C4 Context Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram for Architecture Bulletin
+
+Person(admin, "Administrator", "Project manager or team lead who posts deliverable requests and manages the bulletin board")
+Person(architect, "Architect", "Technical architect who views bulletins, self-assigns tasks, and submits deliverables")
+
+System(app, "Architecture Bulletin", "Static React web application for managing team architecture deliverables. Enables task assignment, artifact upload, and threaded conversations.")
+
+System_Ext(github_oauth, "GitHub OAuth", "Provides user authentication via OAuth 2.0")
+System_Ext(github_api, "GitHub API", "RESTful API for repository operations (CRUD on files and commits)")
+System_Ext(github_pages, "GitHub Pages", "Static site hosting with global CDN distribution")
+System_Ext(data_repo, "Data Repository\n(GitHub)", "Git repository storing bulletin posts, attachments, artifacts, and conversations as JSON files")
+
+Rel(admin, app, "Creates posts, assigns tasks, manages configuration", "HTTPS")
+Rel(architect, app, "Views posts, self-assigns, uploads artifacts, participates in conversations", "HTTPS")
+
+Rel(app, github_oauth, "Authenticates users", "OAuth 2.0")
+Rel(github_oauth, app, "Returns access token")
+
+Rel(app, github_api, "CRUD operations on repository files", "REST API / HTTPS\nAuthorization: token")
+Rel(github_api, data_repo, "Reads/writes files, creates commits")
+
+Rel(github_pages, app, "Hosts and serves static assets", "HTTPS / CDN")
+
+Rel_Back(app, github_pages, "Deployed via GitHub Actions")
+
+note right of app
+  **Key Features:**
+  - GitHub OAuth authentication
+  - Role-based access (Admin/Architect)
+  - Post bulletin with attachments
+  - Assign tasks to architects
+  - Upload artifact versions
+  - Threaded conversations
+  - Admin notifications
+  - Archive and export
+  - Control panel configuration
+end note
+
+note right of data_repo
+  **Repository Structure:**
+  - config/ (architects, statuses, settings)
+  - posts/ (bulletin post JSONs)
+  - attachments/ (post attachments)
+  - artifacts/ (versioned deliverables)
+  - conversations/ (comment threads)
+  - notifications/ (admin alerts)
+  - archive/ (completed tasks)
+end note
+
+@enduml

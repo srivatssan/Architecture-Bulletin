@@ -1,0 +1,121 @@
+@startuml GitHub OAuth Authentication Flow
+
+title Architecture Bulletin - GitHub OAuth Authentication
+
+actor User
+participant "React App\n(Browser)" as App
+participant "GitHub\nOAuth" as OAuth
+participant "GitHub API" as API
+participant "Data Repo\n(config)" as Repo
+
+== User Login ==
+
+User -> App: Clicks "Login with GitHub"
+activate App
+
+App -> App: Generate state token\n(CSRF protection)
+App -> App: Store state in sessionStorage
+
+App -> OAuth: Redirect to GitHub OAuth\n/login/oauth/authorize\n?client_id=xxx&redirect_uri=xxx&state=xxx
+deactivate App
+activate OAuth
+
+OAuth -> User: Show authorization screen
+User -> OAuth: Approve application access
+OAuth -> App: Redirect to callback\n/callback?code=xxx&state=xxx
+deactivate OAuth
+activate App
+
+App -> App: Validate state token\n(prevent CSRF)
+
+App -> OAuth: POST /login/oauth/access_token\n{code, client_id, client_secret}
+activate OAuth
+OAuth -> OAuth: Validate authorization code
+OAuth --> App: {access_token, scope, token_type}
+deactivate OAuth
+
+App -> App: Store access_token\nin sessionStorage
+
+App -> API: GET /user\nAuthorization: token {access_token}
+activate API
+API --> App: {login, name, avatar_url, email}
+deactivate API
+
+App -> Repo: GET /config/architects.json\nAuthorization: token {access_token}
+activate Repo
+Repo --> App: {architects: [...]}
+deactivate Repo
+
+App -> Repo: GET /config/settings.json
+activate Repo
+Repo --> App: {adminUsers: [...]}
+deactivate Repo
+
+App -> App: Determine user role:\n- If in adminUsers → role = "admin"\n- If in architects → role = "architect"\n- Else → role = "unauthorized"
+
+alt User is authorized (admin or architect)
+    App -> App: Store user data in AuthContext:\n{user, role, token}
+    App --> User: Redirect to Dashboard
+else User is unauthorized
+    App --> User: Show "Access Denied" message\n"Contact admin to be added"
+    App -> App: Clear session
+end
+
+== User Logout ==
+
+User -> App: Clicks "Logout"
+activate App
+
+App -> App: Clear sessionStorage\n(remove token and user data)
+App -> App: Clear all Context state
+App --> User: Redirect to Login page
+deactivate App
+
+== Subsequent API Calls (Authenticated) ==
+
+User -> App: Performs action\n(e.g., view posts)
+activate App
+
+App -> App: Get token from sessionStorage
+
+alt Token exists and not expired
+    App -> API: GET /repos/{owner}/{repo}/contents/posts\nAuthorization: token {access_token}
+    activate API
+    API -> API: Validate token
+
+    alt Token valid
+        API --> App: 200 OK\n{posts data}
+    else Token invalid/expired
+        API --> App: 401 Unauthorized
+        deactivate API
+        App -> App: Clear session
+        App --> User: Redirect to Login\n"Session expired"
+    end
+else Token missing
+    App --> User: Redirect to Login
+end
+
+deactivate App
+
+== Handle Rate Limit ==
+
+User -> App: Performs many actions
+activate App
+
+App -> API: Multiple API requests
+activate API
+
+alt Rate limit not exceeded
+    API --> App: 200 OK
+else Rate limit exceeded
+    API --> App: 403 Forbidden\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: {timestamp}
+    deactivate API
+
+    App --> User: Show error message:\n"GitHub API rate limit exceeded.\nPlease try again in X minutes."
+    App -> App: Calculate retry time\nfrom X-RateLimit-Reset
+    App --> User: Display countdown timer
+end
+
+deactivate App
+
+@enduml

@@ -1,0 +1,525 @@
+{
+  "project": "Architecture-Bulletin",
+  "version": "1.0",
+  "date": "2025-11-18",
+  "description": "Team deliverables bulletin board with GitHub as backend storage",
+  "personas": [
+    {
+      "id": "persona-admin",
+      "name": "System Administrator",
+      "role": "Admin",
+      "description": "Project manager or team lead responsible for coordinating architecture deliverables",
+      "goals": [
+        "Post clear task requirements with all necessary context",
+        "Assign work to appropriate architects",
+        "Monitor progress of all active tasks",
+        "Receive timely notifications for critical events",
+        "Maintain organized bulletin board"
+      ],
+      "pain_points": [
+        "Difficulty tracking who is working on what",
+        "Losing important artifacts in email threads",
+        "No central place to view all deliverables"
+      ]
+    },
+    {
+      "id": "persona-architect",
+      "name": "Solution Architect",
+      "role": "Architect",
+      "description": "Technical architect responsible for creating architecture deliverables and documentation",
+      "goals": [
+        "Understand task requirements clearly",
+        "Take ownership of tasks matching expertise",
+        "Upload deliverable artifacts with proper versioning",
+        "Communicate progress and blockers effectively"
+      ],
+      "pain_points": [
+        "Unclear or incomplete requirements",
+        "Difficulty finding supporting documents",
+        "No version history when iterating on deliverables"
+      ]
+    }
+  ],
+  "features": [
+    {
+      "id": "feature-auth",
+      "name": "User Authentication",
+      "description": "GitHub OAuth-based authentication for admins and architects",
+      "priority": "must_have",
+      "epic": "Epic 1",
+      "user_stories": [
+        {
+          "id": "story-1-1",
+          "as": "user",
+          "i_want": "to log in using my GitHub account",
+          "so_that": "I can securely access the bulletin board without creating separate credentials",
+          "acceptance_criteria": [
+            "User sees Login with GitHub button on landing page",
+            "Clicking button redirects to GitHub OAuth authorization",
+            "After authorization, user is redirected back to application",
+            "User role determined based on GitHub username configuration",
+            "Session persists across browser refreshes",
+            "User can log out"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-bulletin-display",
+      "name": "Bulletin Board Display",
+      "description": "View, search, and filter all bulletin posts",
+      "priority": "must_have",
+      "epic": "Epic 2",
+      "user_stories": [
+        {
+          "id": "story-2-1",
+          "as": "user",
+          "i_want": "to see all bulletin posts in a list view",
+          "so_that": "I can understand the current team workload and priorities",
+          "acceptance_criteria": [
+            "Bulletin board displays all posts",
+            "Each post card shows title, status, assigned architects, created date",
+            "Posts sorted by created date newest first",
+            "Closed posts are grayed out but visible",
+            "Active posts prominently displayed"
+          ]
+        },
+        {
+          "id": "story-2-2",
+          "as": "user",
+          "i_want": "to search and filter bulletin posts",
+          "so_that": "I can quickly find specific tasks or deliverables",
+          "acceptance_criteria": [
+            "Search box filters posts by title, description, concerned parties",
+            "Filter dropdown for status",
+            "Filter dropdown for assigned architect",
+            "Date range filter",
+            "Multiple filters can be applied simultaneously",
+            "Clear all filters button"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-post-management",
+      "name": "Post Management (Admin)",
+      "description": "Create, edit, delete, and manage bulletin posts",
+      "priority": "must_have",
+      "epic": "Epic 3",
+      "user_stories": [
+        {
+          "id": "story-3-1",
+          "as": "admin",
+          "i_want": "to create a new bulletin post",
+          "so_that": "I can assign architecture deliverables to the team",
+          "acceptance_criteria": [
+            "Create New Post button visible to admins only",
+            "Form includes required fields: Title, Description, Concerned Parties",
+            "File attachment field accepts one or more files (max 10MB each)",
+            "Image attachments show preview thumbnails",
+            "Architect dropdown allows selecting multiple architects",
+            "Status dropdown with default value New",
+            "Created date auto-populated",
+            "Form validation prevents submission with missing fields"
+          ]
+        },
+        {
+          "id": "story-3-2",
+          "as": "admin",
+          "i_want": "to edit an existing bulletin post",
+          "so_that": "I can update requirements or correct mistakes",
+          "acceptance_criteria": [
+            "Edit button visible on post detail page for admins",
+            "Edit form pre-populated with existing data",
+            "All fields editable",
+            "Can add new attachments",
+            "Can remove existing attachments",
+            "Changes saved to GitHub repository"
+          ]
+        },
+        {
+          "id": "story-3-3",
+          "as": "admin",
+          "i_want": "to delete a bulletin post",
+          "so_that": "I can remove cancelled or duplicate tasks",
+          "acceptance_criteria": [
+            "Delete button visible on post detail page for admins",
+            "Confirmation dialog shown before deletion",
+            "Post and all associated attachments removed from GitHub",
+            "Associated conversations and artifacts also deleted"
+          ]
+        },
+        {
+          "id": "story-3-4",
+          "as": "admin",
+          "i_want": "to change the status of a post",
+          "so_that": "I can reflect the current state of the deliverable",
+          "acceptance_criteria": [
+            "Status dropdown visible on post detail page for admins",
+            "Can select from: New, Assigned-InProgress, Submitted for Review, Pending Review, Escalate, Closed",
+            "Changing to Escalate triggers notification to all admins",
+            "Changing to Closed marks closed date and captures admin name",
+            "Only admins can move status to Closed"
+          ]
+        },
+        {
+          "id": "story-3-5",
+          "as": "admin",
+          "i_want": "to assign or reassign architects to a post",
+          "so_that": "I can distribute work based on expertise and availability",
+          "acceptance_criteria": [
+            "Architect dropdown on post detail page (admins only)",
+            "Can select multiple architects",
+            "Can add or remove architects from assignment",
+            "Admin-assigned tasks are locked"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-task-assignment",
+      "name": "Task Assignment (Architect)",
+      "description": "Self-assign to available tasks and view assignments",
+      "priority": "must_have",
+      "epic": "Epic 4",
+      "user_stories": [
+        {
+          "id": "story-4-1",
+          "as": "architect",
+          "i_want": "to self-assign to an available task",
+          "so_that": "I can take ownership of deliverables matching my expertise",
+          "acceptance_criteria": [
+            "Assign to Me button visible on unassigned or partially assigned posts",
+            "Clicking button adds architect to assigned list",
+            "Multiple architects can self-assign to same task",
+            "Cannot self-assign if admin has locked assignments",
+            "No notification sent to admin on self-assignment"
+          ]
+        },
+        {
+          "id": "story-4-2",
+          "as": "architect",
+          "i_want": "to distinguish between my assigned and unassigned tasks",
+          "so_that": "I can prioritize my work",
+          "acceptance_criteria": [
+            "Assigned tasks highlighted with visual indicator",
+            "Filter option for My Tasks shows only assigned tasks",
+            "Unassigned tasks clearly marked as available"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-artifacts",
+      "name": "Artifact Management",
+      "description": "Upload and manage deliverable artifacts with version control",
+      "priority": "must_have",
+      "epic": "Epic 5",
+      "user_stories": [
+        {
+          "id": "story-5-1",
+          "as": "architect",
+          "i_want": "to upload deliverable artifacts",
+          "so_that": "I can submit my work for review",
+          "acceptance_criteria": [
+            "Upload button visible on assigned tasks only",
+            "File upload supports multiple files (max 10MB each)",
+            "Version number auto-incremented (v1, v2, v3, etc.)",
+            "Upload timestamp and uploader name recorded",
+            "Files saved to GitHub repository under task folder"
+          ]
+        },
+        {
+          "id": "story-5-2",
+          "as": "user",
+          "i_want": "to view all versions of uploaded artifacts",
+          "so_that": "I can track iterations and access previous versions",
+          "acceptance_criteria": [
+            "Artifact section shows list of all versions",
+            "Each version shows: version number, uploaded by, upload date, file name",
+            "Latest version highlighted as Current",
+            "Image files show thumbnail preview",
+            "Can download any version"
+          ]
+        },
+        {
+          "id": "story-5-3",
+          "as": "architect",
+          "i_want": "to add notes explaining my deliverable",
+          "so_that": "admins understand my approach and decisions",
+          "acceptance_criteria": [
+            "Multi-line text area visible on assigned tasks",
+            "Can add/edit notes multiple times",
+            "Notes saved to GitHub with timestamp",
+            "Notes visible to admin and assigned architects only"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-conversations",
+      "name": "Conversation Threads",
+      "description": "Threaded conversations between admins and architects",
+      "priority": "must_have",
+      "epic": "Epic 6",
+      "user_stories": [
+        {
+          "id": "story-6-1",
+          "as": "architect",
+          "i_want": "to ask questions about a bulletin post",
+          "so_that": "I can get clarification before or during work",
+          "acceptance_criteria": [
+            "Chat/comment section visible on all posts",
+            "Architect can add comment even before assignment",
+            "Comment includes message text, author name, timestamp",
+            "Comments saved to GitHub repository",
+            "Comments visible only to admin and assigned architects"
+          ]
+        },
+        {
+          "id": "story-6-2",
+          "as": "user",
+          "i_want": "to reply to comments in the thread",
+          "so_that": "we can have structured discussions",
+          "acceptance_criteria": [
+            "Reply button on each comment",
+            "Reply indented or threaded under parent comment",
+            "Thread depth limited to 2 levels",
+            "All participants in thread can see replies"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-notifications",
+      "name": "Notifications",
+      "description": "Notify admins of critical events (escalations, closures)",
+      "priority": "must_have",
+      "epic": "Epic 7",
+      "user_stories": [
+        {
+          "id": "story-7-1",
+          "as": "admin",
+          "i_want": "to receive notification when a task is closed",
+          "so_that": "I am aware of completed deliverables",
+          "acceptance_criteria": [
+            "Notification triggered when task status changed to Closed",
+            "Notification shows task title, closed by, closed date",
+            "Notification visible in notification center/panel",
+            "Unread notification count shown in header"
+          ]
+        },
+        {
+          "id": "story-7-2",
+          "as": "admin",
+          "i_want": "to receive notification when a task is escalated",
+          "so_that": "I can address urgent issues quickly",
+          "acceptance_criteria": [
+            "Notification triggered when task status changed to Escalate",
+            "Notification marked as high priority",
+            "All admins receive the notification",
+            "Clicking notification navigates to task detail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-control-panel",
+      "name": "Control Panel (Admin Configuration)",
+      "description": "Manage system configuration including architects, statuses, and task limit settings",
+      "priority": "must_have",
+      "epic": "Epic 8",
+      "user_stories": [
+        {
+          "id": "story-8-1",
+          "as": "admin",
+          "i_want": "to manage the list of architects",
+          "so_that": "I can control who can be assigned to tasks",
+          "acceptance_criteria": [
+            "Control panel accessible to admins only",
+            "View list of all architects",
+            "Add new architect by GitHub username",
+            "Remove architect (with warning if assigned to active tasks)",
+            "Activate/deactivate architect",
+            "Architect list stored as JSON file in GitHub repository"
+          ]
+        },
+        {
+          "id": "story-8-2",
+          "as": "admin",
+          "i_want": "to customize the available task statuses",
+          "so_that": "I can adapt the workflow to team needs",
+          "acceptance_criteria": [
+            "View list of all status values",
+            "Add new custom status",
+            "Edit status label and description",
+            "Cannot delete statuses in use",
+            "Status list stored as JSON file in GitHub repository"
+          ]
+        },
+        {
+          "id": "story-8-3",
+          "as": "admin",
+          "i_want": "to customize the message shown when task limit is reached",
+          "so_that": "I can provide context-specific guidance to the team",
+          "acceptance_criteria": [
+            "Text editor for banner message",
+            "Preview of banner as it will appear",
+            "Banner message stored in GitHub configuration file",
+            "Banner appears when active task count reaches 50"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-archive-export",
+      "name": "Archive and Export",
+      "description": "Archive completed tasks and export data for compliance",
+      "priority": "should_have",
+      "epic": "Epic 9",
+      "user_stories": [
+        {
+          "id": "story-9-1",
+          "as": "admin",
+          "i_want": "to archive completed tasks",
+          "so_that": "the bulletin board remains focused on active work",
+          "acceptance_criteria": [
+            "Archive button visible on closed tasks",
+            "Bulk archive option",
+            "Archived tasks moved to separate Archive view",
+            "Archived tasks not counted toward 50-task limit",
+            "Archived tasks remain searchable",
+            "Can unarchive tasks if needed"
+          ]
+        },
+        {
+          "id": "story-9-2",
+          "as": "admin",
+          "i_want": "to export tasks and artifacts as archive file",
+          "so_that": "I can maintain offline records for compliance",
+          "acceptance_criteria": [
+            "Export button generates downloadable archive (ZIP)",
+            "Archive includes all task data (JSON), artifacts, conversations",
+            "Can export all tasks or selected date range",
+            "Export includes metadata (export date, exported by)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature-image-preview",
+      "name": "Image Preview",
+      "description": "Preview image attachments inline without downloading",
+      "priority": "should_have",
+      "epic": "Epic 10",
+      "user_stories": [
+        {
+          "id": "story-10-1",
+          "as": "user",
+          "i_want": "to preview image attachments inline",
+          "so_that": "I can quickly review diagrams without downloading",
+          "acceptance_criteria": [
+            "Image files (PNG, JPG, GIF, SVG) display as thumbnails",
+            "Clicking thumbnail opens full-size preview modal",
+            "Modal includes zoom controls",
+            "Non-image files show file type icon",
+            "Preview works for images in attachments and artifacts"
+          ]
+        }
+      ]
+    }
+  ],
+  "statuses": [
+    {
+      "id": "status-new",
+      "name": "New",
+      "description": "Task created but not yet assigned or started",
+      "default": true
+    },
+    {
+      "id": "status-assigned",
+      "name": "Assigned-InProgress",
+      "description": "Task assigned to architect(s) and work is in progress"
+    },
+    {
+      "id": "status-submitted",
+      "name": "Submitted for Review",
+      "description": "Architect has submitted deliverable for admin review"
+    },
+    {
+      "id": "status-pending",
+      "name": "Pending Review",
+      "description": "Admin is reviewing submitted deliverable"
+    },
+    {
+      "id": "status-escalate",
+      "name": "Escalate",
+      "description": "Task is blocked or requires urgent attention",
+      "triggers_notification": true
+    },
+    {
+      "id": "status-closed",
+      "name": "Closed",
+      "description": "Task completed and approved by admin",
+      "triggers_notification": true,
+      "admin_only": true
+    }
+  ],
+  "non_functional": {
+    "performance": {
+      "page_load_time_ms": 2000,
+      "post_detail_load_ms": 1500,
+      "search_filter_response_ms": 500,
+      "concurrent_users": 5,
+      "max_active_tasks": 50
+    },
+    "security": {
+      "authentication": "GitHub OAuth 2.0",
+      "authorization": "Role-based (Admin, Architect)",
+      "encryption_transit": "HTTPS",
+      "encryption_at_rest": "GitHub infrastructure",
+      "session_management": "Secure localStorage or httpOnly cookies"
+    },
+    "scalability": {
+      "current_user_count": 5,
+      "current_task_count": 50,
+      "future_considerations": "Caching layer if usage grows"
+    },
+    "availability": {
+      "uptime_sla": "99.9% (dependent on GitHub Pages)",
+      "rto_minutes": 60,
+      "rpo_minutes": 5,
+      "backup_strategy": "Git version control"
+    },
+    "usability": {
+      "accessibility": "WCAG 2.1 Level AA target",
+      "device_support": "Desktop only",
+      "browser_support": "Chrome (latest 2 versions)",
+      "min_resolution": "1280x720"
+    },
+    "file_constraints": {
+      "max_file_size_mb": 10,
+      "supported_formats": "All file types",
+      "image_preview_formats": ["PNG", "JPG", "JPEG", "GIF", "SVG"]
+    }
+  },
+  "constraints": [
+    "Must use GitHub as backend storage",
+    "Must deploy on GitHub Pages",
+    "Limited to GitHub API rate limits (5000 requests/hour authenticated)",
+    "File size limited to 10MB per file",
+    "Maximum 50 active tasks (configurable soft limit)",
+    "Designed for small teams (5 users initially)",
+    "Desktop Chrome only for v1"
+  ],
+  "assumptions": [
+    "All users have GitHub accounts",
+    "Users are comfortable with GitHub authentication",
+    "Users have modern Chrome browser installed",
+    "Users have stable internet connection",
+    "Team size remains under 10 users",
+    "Task volume remains under 100 total (50 active + archived)",
+    "Desktop-only usage is acceptable for v1",
+    "English language only for v1"
+  ]
+}

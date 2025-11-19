@@ -1,0 +1,129 @@
+@startuml Create Bulletin Post Flow
+
+title Architecture Bulletin - Create Post and Upload Attachments
+
+actor Admin
+participant "React App\n(PostForm)" as Form
+participant "PostService" as Service
+participant "GitHubDataService\n(Octokit)" as GitHub
+participant "GitHub API" as API
+participant "Data Repo" as Repo
+
+== Admin Creates New Post ==
+
+Admin -> Form: Clicks "Create New Post"
+activate Form
+
+Form --> Admin: Show empty form
+
+Admin -> Form: Fills in:\n- Title\n- Description\n- Concerned Parties\n- Select architects\n- Select status\n- Attach files (2 files)
+
+Admin -> Form: Clicks "Create Post"
+
+Form -> Form: Validate form data:\n- Title required\n- Description required\n- Concerned Parties required\n- Files < 10MB each
+
+alt Validation fails
+    Form --> Admin: Show validation errors
+else Validation succeeds
+
+    Form -> Form: Show loading state
+
+    Form -> Service: createPost(postData, files)
+    activate Service
+
+    Service -> Service: Generate post ID:\npost-XXXX (auto-increment)
+
+    Service -> Service: Prepare post JSON:\n{\n  id, title, description,\n  concernedParties,\n  status, assignedArchitects,\n  createdAt, createdBy,\n  attachments: []\n}
+
+    Service -> GitHub: createFile(\n  path: "posts/post-XXXX.json",\n  content: <base64 JSON>,\n  message: "Create post: {title}"\n)
+    activate GitHub
+
+    GitHub -> API: PUT /repos/{owner}/{repo}/contents/posts/post-XXXX.json\nAuthorization: token {token}\n{\n  content: <base64>,\n  message: "Create post: {title}"\n}
+    activate API
+
+    API -> Repo: Create file\nposts/post-XXXX.json
+    activate Repo
+    Repo -> Repo: Git commit created:\n"Create post: {title}\nBy: admin-user"
+    Repo --> API: {commit: {sha}, content: {sha}}
+    deactivate Repo
+
+    API --> GitHub: 201 Created\n{content, commit}
+    deactivate API
+
+    GitHub --> Service: Success\n{postId, postSha}
+    deactivate GitHub
+
+    == Upload Attachments ==
+
+    loop For each file (2 files)
+
+        Service -> Service: Prepare file:\n- filename: "diagram.png"\n- base64 encode content\n- path: "attachments/post-XXXX/diagram.png"
+
+        Service -> GitHub: createFile(\n  path: "attachments/post-XXXX/diagram.png",\n  content: <base64 file>,\n  message: "Upload attachment for post-XXXX"\n)
+        activate GitHub
+
+        GitHub -> API: PUT /repos/{owner}/{repo}/contents/\nattachments/post-XXXX/diagram.png\n{\n  content: <base64>,\n  message: "Upload attachment for post-XXXX"\n}
+        activate API
+
+        API -> Repo: Create file in\nattachments/post-XXXX/
+        activate Repo
+        Repo --> API: 201 Created
+        deactivate Repo
+
+        API --> GitHub: {content: {path, sha, size}}
+        deactivate API
+
+        GitHub --> Service: Success\n{attachmentPath, sha}
+        deactivate GitHub
+
+        Service -> Service: Add attachment metadata:\n{\n  filename: "diagram.png",\n  path: "attachments/post-XXXX/diagram.png",\n  size: 524288,\n  uploadedBy: "admin-user",\n  uploadedAt: "2025-11-18T10:05:00Z",\n  type: "image/png"\n}
+
+    end
+
+    == Update Post with Attachment Metadata ==
+
+    Service -> Service: Update post JSON:\nAdd attachments array
+
+    Service -> GitHub: updateFile(\n  path: "posts/post-XXXX.json",\n  content: <updated JSON>,\n  sha: <existing post sha>,\n  message: "Add attachments to post-XXXX"\n)
+    activate GitHub
+
+    GitHub -> API: PUT /repos/{owner}/{repo}/contents/posts/post-XXXX.json\n{\n  content: <base64>,\n  sha: <existing>,\n  message: "Add attachments"\n}
+    activate API
+
+    API -> Repo: Update file\nposts/post-XXXX.json
+    activate Repo
+    Repo --> API: 200 OK
+    deactivate Repo
+
+    API --> GitHub: {content, commit}
+    deactivate API
+
+    GitHub --> Service: Success
+    deactivate GitHub
+
+    Service --> Form: Post created successfully\n{post: {...}}
+    deactivate Service
+
+    Form -> Form: Update PostsContext:\nAdd new post to state
+
+    Form --> Admin: Show success message:\n"Post created successfully"
+
+    Form -> Form: Navigate to PostDetailPage(postId)
+
+    Form --> Admin: Redirect to post detail page
+end
+
+deactivate Form
+
+== Error Handling ==
+
+note over Admin, Repo
+  Possible errors:
+  - File size > 10MB: Show error before upload
+  - GitHub API error: Show "Failed to create post"
+  - Rate limit exceeded: Show "Rate limit exceeded, try again later"
+  - Network error: Show "Network error, please retry"
+  - Invalid token: Redirect to login
+end note
+
+@enduml

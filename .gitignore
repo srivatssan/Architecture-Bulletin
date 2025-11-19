@@ -29,6 +29,9 @@ dist-ssr
 .env.local
 .env.production
 
+# Data storage (kept in separate repository: architecture-bulletin-data)
+public/local-data/
+
 # Testing
 coverage
 *.lcov

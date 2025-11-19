@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Architecture-Bulletin/',
+  // Use '/' for local dev, '/Architecture-Bulletin/' for GitHub Pages
+  base: process.env.NODE_ENV === 'production' ? '/Architecture-Bulletin/' : '/',
   build: {
     outDir: 'dist',
     sourcemap: true,
