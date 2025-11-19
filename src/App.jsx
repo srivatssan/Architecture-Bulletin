@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { PostsProvider } from './contexts/PostsContext';
-import { APP_MODE, GITHUB_REPO } from './utils/constants';
+import { APP_MODE, GITHUB_REPO, ROUTES } from './utils/constants';
 import { initializeOctokit } from './services/githubDataService';
 
 // Page components (will be created)
